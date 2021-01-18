@@ -6,20 +6,23 @@ import nfc
 import subprocess
 import sys
 import time
-
+import webview
+import threading
 import random
 import datetime
 import mysql.connector
 import numpy as np
-from RPi import GPIO
+# from RPi import GPIO
 from dateutil.relativedelta import relativedelta
 import pprint
 import pickle
 import unicodecsv as csv
+import eel
 
 finIDm = 77408918390023174  #010101129C17E006 [ICOCA]
 RasNum = 1
 
+eel.init("html")
 
 def calcDistance(data,number):
     new=data[0][u'距離']
@@ -73,11 +76,12 @@ class MyCardReader(object):
         #print "touched"
         self.idm = binascii.hexlify(tag.idm)
         # LED
-        GPIO.output(17,0)
-        GPIO.output(27,0)
-        GPIO.output(22,1)   #BlueLEDon
-        time.sleep(0.5)
-        GPIO.output(22,0)
+        # GPIO.output(17,0)
+        # GPIO.output(27,0)
+        # GPIO.output(22,1)   #BlueLEDon
+        # time.sleep(0.5)
+        # GPIO.output(22,0)
+
         return True
 
     def read_id(self):
@@ -88,21 +92,23 @@ class MyCardReader(object):
             clf.close()
 
 def main():
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(17,GPIO.OUT) #Red
-    GPIO.setup(27,GPIO.OUT) #Green
-    GPIO.setup(22,GPIO.OUT) #Blue
-    GPIO.output(17,1)
-    GPIO.output(27,1)
-    GPIO.output(22,0)
+    # GPIO.setmode(GPIO.BCM)
+    # GPIO.setup(17,GPIO.OUT) #Red
+    # GPIO.setup(27,GPIO.OUT) #Green
+    # GPIO.setup(22,GPIO.OUT) #Blue
+    # GPIO.output(17,1)
+    # GPIO.output(27,1)
+    # GPIO.output(22,0)
+
     with open('message.pickle','rb')as p:
         messageList=pickle.load(p)
     #print "Started idm_reader !!!"
     cr = MyCardReader()
     while True:
-        GPIO.output(17,1)
-        GPIO.output(27,1)
-        GPIO.output(22,0)
+        # GPIO.output(17,1)
+        # GPIO.output(27,1)
+        # GPIO.output(22,0)
+
         #with open('speed.pickle','rb')as f:
         #    basedSpeed=pickle.load(f)
         #print "touch card:"
@@ -176,17 +182,18 @@ def main():
         print("hours: "+str(hours))
         if hours<1:
             if RasNum==row[0][u'端末番号']:
-                GPIO.output(17,1)
-                time.sleep(0.2)
-                GPIO.output(17,0)
-                time.sleep(0.2)
-                GPIO.output(17,1)
-                time.sleep(0.2)
-                GPIO.output(17,0)
-                time.sleep(0.2)
-                GPIO.output(17,1)
-                time.sleep(0.8)
-                GPIO.output(17,0)
+                # GPIO.output(17,1)
+                # time.sleep(0.2)
+                # GPIO.output(17,0)
+                # time.sleep(0.2)
+                # GPIO.output(17,1)
+                # time.sleep(0.2)
+                # GPIO.output(17,0)
+                # time.sleep(0.2)
+                # GPIO.output(17,1)
+                # time.sleep(0.8)
+                # GPIO.output(17,0)
+
                 connect.close()
                 if idm_dec==finIDm:
                     break
@@ -252,18 +259,20 @@ def main():
             connect.commit()
             cursor.close()
             connect.close()
-            GPIO.output(27,1)
-            time.sleep(0.4)
-            GPIO.output(27,0)
-            time.sleep(0.2)
-            GPIO.output(27,1) #Green LED on.
-            time.sleep(0.8)
-            GPIO.output(27,0)
+            # GPIO.output(27,1)
+            # time.sleep(0.4)
+            # GPIO.output(27,0)
+            # time.sleep(0.2)
+            # GPIO.output(27,1) #Green LED on.
+            # time.sleep(0.8)
+            # GPIO.output(27,0)
+
         except:
             connect.rollback()
-            GPIO.output(17,0)       #LEDoff
-            GPIO.output(27,0)
-            GPIO.output(22,0)
+            # GPIO.output(17,0)       #LEDoff
+            # GPIO.output(27,0)
+            # GPIO.output(22,0)
+
             raise
         if RasNum==1:
             #subprocess.call("sudo rm -f /var/www/html/2018_procon_wellness/data.csv")
@@ -306,4 +315,5 @@ def main():
 
 
 if __name__ == '__main__':
+    eel.start("2018_procon_wellness/DISPLAY_RESULT.html")
     main()
